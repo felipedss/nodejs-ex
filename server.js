@@ -1,15 +1,5 @@
-//  OpenShift sample Node application
-var express = require('express'),
-    app     = express(),
-    morgan  = require('morgan');
-    
-Object.assign=require('object-assign')
-
-app.engine('html', require('ejs').renderFile);
-app.use(morgan('combined'))
-
-var port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    ip   = process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
+const port = process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080,
+    ip = process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0';
 
 /*if (mongoURL == null && process.env.DATABASE_SERVICE_NAME) {
   var mongoServiceName = process.env.DATABASE_SERVICE_NAME.toUpperCase(),
@@ -100,12 +90,22 @@ initDb(function(err){
   console.log('Error connecting to Mongo. Message:\n'+err);
 });*/
 
-app.listen(port, ip);
-console.log('Server running on http://%s:%s', ip, port);
-
+const express = require('express');
+const req = require('request');
+const app = express();
 
 app.get('/teams', (request, response) => {
-    response.send('Hello world!');
+    req('http://api.football-data.org/v1/competitions/467/teams', {json: true}, function (error, resp, body) {
+        if (error) {
+            return console.log(error);
+        }
+        response.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+        response.send(body);
+    });
 });
+
+
+app.listen(port, ip);
+console.log('Server running on http://%s:%s', ip, port);
 
 module.exports = app ;
