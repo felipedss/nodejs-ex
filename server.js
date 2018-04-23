@@ -105,4 +105,9 @@ initDb(function(err){
 app.listen(port, ip);
 console.log('Server running on http://%s:%s', ip, port);
 
+
+app.get('/teams', (request, response) => {
+    response.send('Hello world!');
+});
+
 module.exports = app ;
